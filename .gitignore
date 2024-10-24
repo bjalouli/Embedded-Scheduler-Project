@@ -1,0 +1,27 @@
+# Ignore build artifacts
+/build/*
+/Debug/*
+/Release/*
+
+# Ignore object files, ELF files, and related outputs
+*.o
+*.d
+*.elf
+*.map
+*.bin
+*.hex
+*.srec
+
+# Ignore auto-generated files
+*.ld
+*.lst
+*.bak
+
+# Ignore backup files
+*.bak
+*.swp
+
+.cproject
+.project
+.settings/
+.vscode/

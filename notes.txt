@@ -1,0 +1,17 @@
+round robin schedular
+
+Round-robin scheduling is a CPU scheduling algorithm that allocates each task an equal share of the CPU time. 
+Tasks are placed in a circular queue, and when a task's allocated time expires, 
+it is moved to the end of the queue while the next task is taken from the front.
+
+
+For stm32f407 board processor runs by default with 16MHz due to the Hight speed RC oscilator
+Systick timer count clock = 16MHz
+1 count it takes 0.0625us
+0.0625us => 1 count 
+1us => 16 count
+1 ms => 16000 count 
+
+Systick configuration , if we want a tick each N cycle , set N-1 in the SRVR systick register
+because the SCVR counts down from N to 0 , when it reches 0, it not generates the ISR immediately 
+it consumes one extra clock cycle to reload the count from SRVR.
