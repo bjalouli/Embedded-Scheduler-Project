@@ -25,3 +25,8 @@ void toggle_gpio_d14(void) {
 void toggle_gpio_d15(void) {
     GPIOD_ODR ^= GPIO_PIN_D15; // Toggle D12 using XOR
 }
+
+void delay(volatile uint32_t count) { //TODO remplace with timer
+    while (count--) {
+    }
+}

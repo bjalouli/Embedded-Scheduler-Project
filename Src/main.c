@@ -28,70 +28,28 @@
 #include "../Inc/gpio.h"
 #include "../Inc/tasks.h"
 
-// void T1_Handler(void);
-// void T2_Handler(void);
-// void T3_Handler(void);
-// void T4_Handler(void);
-
-void systick_T_init(uint32_t);
-__attribute__((naked)) void sched_stack_init(uint32_t);
-void init_tasks_stack(void);
-
-__attribute__((naked)) void switch_sp_to_psp(void);
-uint32_t get_psp_value(void);
-void enable_faults(void);
-void set_psp_value(uint32_t task_psp);
-void update_next_task(void);
 
 
-uint32_t psp_of_tasks[TASKS] = {T1_S , T2_S , T3_S , T4_S};
-uint32_t task_handlers[TASKS] ;
+
+uint32_t psp_of_tasks[TOTAL_TASKS] = {TASK1_STACK_START , TASK2_STACK_START , TASK3_STACK_START , TASK4_STACK_START};
+uint32_t task_handlers[TOTAL_TASKS] = {(uint32_t)T1_Handler , (uint32_t)T2_Handler , (uint32_t)T3_Handler , (uint32_t)T4_Handler};
+TaskControlBlock tasks[TOTAL_TASKS];
 uint8_t c_task = 0 ; //1st task
 
 
 
-
-// void gpio_init(void) {
-//     // Step 1: Enable the clock for GPIOD
-//     RCC_AHB1ENR |= (1 << 3); // Bit 3 corresponds to GPIOD
-
-//     // Step 2: Set D12, D13, D14, and D15 as output (00: Input, 01: Output)
-//     GPIOD_MODER &= ~((0x3 << (12 * 2)) | (0x3 << (13 * 2)) | (0x3 << (14 * 2)) | (0x3 << (15 * 2))); // Clear mode bits for D12, D13, D14, D15
-//     GPIOD_MODER |= ((0x1 << (12 * 2)) | (0x1 << (13 * 2)) | (0x1 << (14 * 2)) | (0x1 << (15 * 2)));  // Set mode to output (01)
-// }
-
-// void toggle_gpio_d12(void) {
-//     GPIOD_ODR ^= GPIO_PIN_D12; // Toggle D12 using XOR
-// }
-
-// void toggle_gpio_d13(void) {
-//     GPIOD_ODR ^= GPIO_PIN_D13; // Toggle D12 using XOR
-// }
-
-// void toggle_gpio_d14(void) {
-//     GPIOD_ODR ^= GPIO_PIN_D14; // Toggle D12 using XOR
-// }
-
-// void toggle_gpio_d15(void) {
-//     GPIOD_ODR ^= GPIO_PIN_D15; // Toggle D12 using XOR
-// }
-
-
 int main(void)
 {
-    /* Loop forever */
-  enable_faults();
-  gpio_init();
-  sched_stack_init(SCHED_S);
 
-  task_handlers[0] = (uint32_t)T1_Handler;
-  task_handlers[1] = (uint32_t)T2_Handler;
-  task_handlers[2] = (uint32_t)T3_Handler;
-  task_handlers[3] = (uint32_t)T4_Handler;
+  enable_faults();
+  
+  gpio_init();
+
+  sched_stack_init(SCHEDULER_STACK_START);
 
   init_tasks_stack();
 
-  systick_T_init(TICK_RATE);
+  systick_T_init(SYSTEM_TICK_RATE_HZ);
 
   switch_sp_to_psp();
 
@@ -101,54 +59,17 @@ int main(void)
 
 
 
-// void T1_Handler(void) {
-//   while (1)
-//   {
-//     /* code */
-//     toggle_gpio_d12();
-//   }
-  
-// }
-
-// void T2_Handler(void) {
-//   while (1)
-//   {
-//     /* code */
-//     toggle_gpio_d13();
-//   }
-  
-// }
-
-// void T3_Handler(void) {
-//   while (1)
-//   {
-//     /* code */
-//     toggle_gpio_d14();
-//   }
-  
-// }
-
-// void T4_Handler(void) {
-//   while (1)
-//   {
-//     /* code */
-//     toggle_gpio_d15();
-//   }
-  
-// }
-
-
 uint32_t get_psp_value(void){
-  return psp_of_tasks[c_task];
+  return tasks[c_task].stack_pointer;
 }
 
 void set_psp_value(uint32_t task_psp){
-  psp_of_tasks[c_task] = task_psp;
+  tasks[c_task].stack_pointer = task_psp;
 }
 
 void update_next_task(void){
   c_task++;
-  c_task %= TASKS;
+  c_task %= TOTAL_TASKS;
 }
 
 __attribute__((naked)) void switch_sp_to_psp(void)
@@ -170,7 +91,7 @@ void systick_T_init(uint32_t tick) {
   uint32_t *SYST_RVR = (uint32_t*) 0xE000E014;
   uint32_t *SYST_CSR = (uint32_t*) 0xE000E010;
 
-  uint32_t reload_value = (HSI_CLOCK / tick) -1 ;
+  uint32_t reload_value = (HSI_CLOCK_FREQUENCY_HZ / tick) -1 ;
 
     //clear the Reload register 24 bits  and then load the count 
         *SYST_RVR &= ~(0x00FFFFFF);
@@ -195,18 +116,24 @@ void enable_faults() {
 }
 
 void init_tasks_stack(void) {
+
+  for (int task=0 ; task< TOTAL_TASKS ; task++) {
+    tasks[task].task_state = RUNNING;
+    tasks[task].stack_pointer = psp_of_tasks[task];
+    tasks[task].task_function = task_handlers[task];
+  }
   uint32_t *PSP;
 
 
   //Stack frame : xPSR / PC / LR / General purpose registers R12 -> R0 / Scratch registers R11 -> R4
-  for (int task=0 ; task < TASKS ; task++) {
-    PSP = (uint32_t*)psp_of_tasks[task];
+  for (int task=0 ; task < TOTAL_TASKS ; task++) {
+    PSP = (uint32_t*)tasks[task].stack_pointer;
 
     PSP--;
     *PSP = xPSR; //0x00100000 T (thumb state) bit of PSR register
 
     PSP--;
-    *PSP = task_handlers[task]; //PC next instruction to execute is the task handler
+    *PSP = tasks[task].task_function; //PC next instruction to execute is the task handler
 
     PSP--;
     *PSP = 0xFFFFFFFD; //LR
@@ -216,7 +143,7 @@ void init_tasks_stack(void) {
       *PSP = 0;
     }
 
-    psp_of_tasks[task] = (uint32_t)PSP;
+    tasks[task].stack_pointer = (uint32_t)PSP;
     
   }
 }

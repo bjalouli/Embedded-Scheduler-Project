@@ -16,6 +16,8 @@ void toggle_gpio_d14(void);
 
 void toggle_gpio_d15(void);
 
+void delay(uint32_t);
+
 #define RCC_BASE      0x40023800  // Base address for RCC
 #define GPIOD_BASE    0x40020C00  // Base address for GPIOD
 

@@ -6,6 +6,7 @@ void T1_Handler(void) {
   {
     /* code */
     toggle_gpio_d12();
+    delay(100000);
   }
   
 }
@@ -15,6 +16,7 @@ void T2_Handler(void) {
   {
     /* code */
     toggle_gpio_d13();
+    delay(100000);
   }
   
 }
@@ -24,6 +26,7 @@ void T3_Handler(void) {
   {
     /* code */
     toggle_gpio_d14();
+    delay(100000);
   }
   
 }
@@ -33,6 +36,7 @@ void T4_Handler(void) {
   {
     /* code */
     toggle_gpio_d15();
+    delay(100000);
   }
   
 }
