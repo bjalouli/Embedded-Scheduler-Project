@@ -1,3 +1,14 @@
+/**
+ * @file gpio.c
+ * @brief GPIO control functions for the Embedded Scheduler Project.
+ *
+ * This file implements functions to initialize and control GPIO pins.
+ *
+ * @author Bilel
+ * @date 2024-10-28
+ */
+
+
 #include "gpio.h"
 
 
@@ -10,20 +21,8 @@ void gpio_init(void) {
     GPIOD_MODER |= ((0x1 << (12 * 2)) | (0x1 << (13 * 2)) | (0x1 << (14 * 2)) | (0x1 << (15 * 2)));  // Set mode to output (01)
 }
 
-void toggle_gpio_d12(void) {
-    GPIOD_ODR ^= GPIO_PIN_D12; // Toggle D12 using XOR
-}
-
-void toggle_gpio_d13(void) {
-    GPIOD_ODR ^= GPIO_PIN_D13; // Toggle D12 using XOR
-}
-
-void toggle_gpio_d14(void) {
-    GPIOD_ODR ^= GPIO_PIN_D14; // Toggle D12 using XOR
-}
-
-void toggle_gpio_d15(void) {
-    GPIOD_ODR ^= GPIO_PIN_D15; // Toggle D12 using XOR
+void toggle_gpio_pin(uint32_t pin) {
+    GPIOD_ODR ^= pin; // Toggle D12 using XOR
 }
 
 void delay(volatile uint32_t count) { //TODO remplace with timer

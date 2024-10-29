@@ -2,6 +2,9 @@
 /build/*
 /Debug/*
 /Release/*
+/docs/*
+Doxyfile
+*.log
 
 # Ignore object files, ELF files, and related outputs
 *.o
