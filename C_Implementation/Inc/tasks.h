@@ -2,8 +2,8 @@
  * @file tasks.h
  * @brief Task management functions for the Embedded Scheduler Project.
  *
- * This file defines the TaskControlBlock structure and function prototypes for
- * task management, including task initialization and scheduling.
+ * This file defines the TaskControlBlock structure and function prototypes
+ * for task management, including task initialization and scheduling.
  *
  * @author Bilel
  * @date 2024-10-28

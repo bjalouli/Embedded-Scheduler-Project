@@ -1,6 +1,6 @@
 # Ignore build artifacts
 /build/*
-/Debug/*
+C_Implementation/Debug/*
 /Release/*
 /docs/*
 Doxyfile
@@ -24,7 +24,8 @@ Doxyfile
 *.bak
 *.swp
 
-.cproject
-.project
-.settings/
-.vscode/
+C_Implementation/.cproject
+C_Implementation/.project
+C_Implementation/.settings/
+C_Implementation/.vscode/
+Rust_Implementation/.vscode/
